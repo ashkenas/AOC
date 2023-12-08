@@ -15,20 +15,24 @@ const handType = (hand) => {
   const make = {};
   for (const n of hand)
     make[n] = (make[n] || 0) + 1;
+  const resolve = (handMake) => {
+    const vals = Object.values(handMake);
+    if (vals.length === 1) return 6;
+    if (vals.length === 2)
+      return (vals[0] === 1 || vals[0] === 4) ? 5 : 4;
+    if (vals.length === 3)
+      return vals.indexOf(3) !== -1 ? 3 : 2;
+    if (vals.length === 4) return 1;
+    return 0;
+  }
   if (make[0]) { // Joker processing
     const j = make[0];
     delete make[0];
-    const k = Object.entries(make).sort(([,v1], [v2]) => v2 - v1)[0][0];
-    make[k] += j;
-  }
-  const vals = Object.values(make);
-  if (vals.length === 1) return 6;
-  if (vals.length === 2)
-    return (vals[0] === 1 || vals[0] === 4) ? 5 : 4;
-  if (vals.length === 3)
-    return vals.indexOf(3) !== -1 ? 3 : 2;
-  if (vals.length === 4) return 1;
-  return 0;
+    return Math.max(...Object.entries(make).map(([k, v]) => resolve({
+      ...make,
+      [k]: v + j
+    })));
+  } else return resolve(make);
 };
 
 const input = document.body.innerText.trim().split('\n').map((row) => {
